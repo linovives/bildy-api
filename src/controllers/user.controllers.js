@@ -103,3 +103,24 @@ export const login = async (req, res) => {
     refreshToken
   });
 };
+
+export const updateProfile = async (req, res) => {
+  const { name, lastName, nif } = req.body;
+  const user = req.user; 
+
+  user.name = name;
+  user.lastName = lastName;
+  user.nif = nif;
+
+  await user.save();
+
+  res.status(200).json({
+    message: "Perfil actualizado correctamente",
+    user: {
+      email: user.email,
+      name: user.name,
+      lastName: user.lastName,
+      nif: user.nif
+    }
+  });
+};

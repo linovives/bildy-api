@@ -35,3 +35,15 @@ Content-Type: application/json
   "email": "user4@example.com",
   "password": "password123"
 }
+
+### 4. Onboarding
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUwNTc0NzcsImV4cCI6MTc3NTA1ODM3N30.bUUa7WA5H9PFEAxADskRvm2OZ9zCpiH7zJHrL3wwMME
+PUT {{host}}/user/register
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "name": "Lino Modificado",
+  "lastName": "Vives Actualizado",
+  "nif": "87654321Z"
+}
