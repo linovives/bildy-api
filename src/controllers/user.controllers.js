@@ -2,6 +2,8 @@ import User from '../models/User.js';
 import { AppError } from '../utils/AppError.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { refreshTokenSign, tokenSign } from '../utils/handleJwt.js';
+import { compare } from 'bcryptjs';
 
 // POST /api/user/register
 export const register = async (req, res) => {
@@ -67,4 +69,37 @@ export const validateEmail = async (req, res) => {
   }
 
   throw AppError.badRequest(`Código incorrecto. Intentos restantes: ${user.verificationAttempts}`);
+};
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email }).select('+password');
+  
+  if (!user) {
+    throw AppError.unauthorized('Credenciales incorrectas');
+  }
+
+  if (user.status !== 'verified') {
+    throw AppError.forbidden('Por favor, verifica tu email antes de loguearte');
+  }
+
+  const isMatch = await compare(password, user.password);
+  if (!isMatch) {
+    throw AppError.unauthorized('Credenciales incorrectas');
+  }
+
+  const accessToken = tokenSign(user);
+  const refreshToken = refreshTokenSign(user);
+
+  res.status(200).json({
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    },
+    accessToken,
+    refreshToken
+  });
 };

@@ -26,3 +26,12 @@ Content-Type: application/json
 {
   "code": "{{codigo}}"
 }
+
+### 3. Login
+POST {{host}}/user/login
+Content-Type: application/json
+
+{
+  "email": "user4@example.com",
+  "password": "password123"
+}
