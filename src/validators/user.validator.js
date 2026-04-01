@@ -10,3 +10,8 @@ export const registerSchema = z.object({
   lastName: z.string().min(1, "El apellido es obligatorio"),
   nif: z.string().min(1, "El NIF es obligatorio")
 });
+
+export const validateEmailSchema = z.object({
+  code: z.string()
+    .length(6, "El código debe tener exactamente 6 dígitos")
+});

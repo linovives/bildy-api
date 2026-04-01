@@ -2,13 +2,27 @@
 @port = 3000
 @host = http://{{hostname}}:{{port}}/api
 
+###  1. Registro
 POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
+  "email": "user4@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
   "nif": "12345678X"
+}
+
+### 2. Validación
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2NlZTc1ZmNlN2RmOGQzODY0MDIwYyIsImlhdCI6MTc3NTAzODA2OSwiZXhwIjoxNzc1MDM4OTY5fQ.8IRmIzVLU9nQNwfao6pI_VuJBk9RlRCHja4pNdc6A-c
+@codigo = 865683
+
+PUT {{host}}/user/validation
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "code": "{{codigo}}"
 }
