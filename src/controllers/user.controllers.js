@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Company from '../models/Company.js';
 import { AppError } from '../utils/AppError.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -122,5 +123,37 @@ export const updateProfile = async (req, res) => {
       lastName: user.lastName,
       nif: user.nif
     }
+  });
+};
+
+export const updateCompany = async (req, res) => {
+  let { name, cif, address, isFreelance } = req.body;
+  const user = req.user; 
+
+  if (isFreelance) {
+    cif = user.nif; 
+    name = `${user.name} ${user.lastName}`; 
+  }
+
+  let company = await Company.findOne({ cif });
+
+  if (!company) {
+    company = await Company.create({
+      owner: user._id,
+      name,
+      cif,
+      address,
+      isFreelance
+    });
+  } else {
+    user.role = 'guest'; 
+    await user.save();
+  }
+
+  res.status(200).json({
+    message: company.owner.equals(user._id) 
+      ? "Compañía creada. Eres el administrador." 
+      : "Te has unido a una compañía existente. Ahora eres invitado (guest).",
+    company
   });
 };

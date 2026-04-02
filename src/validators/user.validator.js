@@ -26,3 +26,16 @@ export const updateProfileSchema = z.object({
   lastName: z.string().min(1, "El apellido es obligatorio"),
   nif: z.string().min(1, "El NIF es obligatorio")
 });
+
+export const companySchema = z.object({
+  name: z.string().optional(), 
+  cif: z.string().optional(),
+  address: z.object({
+    street: z.string().optional(),
+    number: z.string().optional(),
+    postal: z.string().optional(),
+    city: z.string().optional(),
+    province: z.string().optional()
+  }).optional(),
+  isFreelance: z.boolean().default(false)
+});

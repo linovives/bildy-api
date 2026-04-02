@@ -36,7 +36,7 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### 4. Onboarding
+### 4A. Onboarding
 @login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUwNTc0NzcsImV4cCI6MTc3NTA1ODM3N30.bUUa7WA5H9PFEAxADskRvm2OZ9zCpiH7zJHrL3wwMME
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
@@ -46,4 +46,18 @@ Content-Type: application/json
   "name": "Lino Modificado",
   "lastName": "Vives Actualizado",
   "nif": "87654321Z"
+}
+
+### 4B. Compañia
+PATCH {{host}}/user/company
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "name": "Nueva Empresa S.L.",
+  "cif": "B99999999",
+  "address": {
+    "city": "Castellón"
+  },
+  "isFreelance": false
 }
