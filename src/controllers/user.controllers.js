@@ -178,3 +178,25 @@ export const updateLogo = async (req, res) => {
     companyName: company.name
   });
 };
+
+export const getUserProfile = async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw AppError.notFound('Usuario no encontrado');
+  }
+
+  const company = await Company.findOne({ owner: user._id });
+  
+  res.status(200).json({
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      lastName: user.lastName,
+      fullName: user.fullName,
+      role: user.role,
+      company: company
+    }
+  });
+};

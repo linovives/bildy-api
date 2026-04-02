@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, validateEmail, login, updateProfile, updateCompany, updateLogo } from '../controllers/user.controllers.js';
+import { register, validateEmail, login, updateProfile, updateCompany, updateLogo, getUserProfile } from '../controllers/user.controllers.js';
 import { validateBody } from '../middleware/validate.middleware.js';
 import { validateUser } from '../middleware/auth.middleware.js';
 import { registerSchema, validateEmailSchema, loginSchema, updateProfileSchema, companySchema } from '../validators/user.validator.js';
@@ -24,6 +24,9 @@ router.patch('/company', validateUser, validateBody(companySchema), updateCompan
 
 // PATCH /api/user/logo
 router.patch('/logo', validateUser, uploadLogo, updateLogo);
+
+// GET /api/user
+router.get('/', validateUser, getUserProfile);
 
 
 export default router;

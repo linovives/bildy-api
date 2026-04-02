@@ -37,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxMjU2NjIsImV4cCI6MTc3NTEyNjU2Mn0.hCb48y1aHpKRVzFC0Ri8-XEfX_HimCVuCGcllI7zxP8
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxMzkxOTIsImV4cCI6MTc3NTE0MDA5Mn0.hXkFXjXvUFSulqoZpM9F4NuqcKNE7pwJa1-bAVwYOaQ
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -73,3 +73,7 @@ Content-Type: image/png
 
 < ./uploads/test-logo.png
 --boundary--
+
+### 6. Obtener perfil completo
+GET {{host}}/user
+Authorization: Bearer {{login_token}}
