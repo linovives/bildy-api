@@ -39,3 +39,11 @@ export const companySchema = z.object({
   }).optional(),
   isFreelance: z.boolean().default(false)
 });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "La contraseña actual es obligatoria"),
+  newPassword: z.string().min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
+}).refine((data) => data.newPassword !== data.currentPassword, {
+  message: "La nueva contraseña debe ser diferente a la actual",
+  path: ["newPassword"], 
+});

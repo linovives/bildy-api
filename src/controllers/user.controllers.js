@@ -4,8 +4,8 @@ import { AppError } from '../utils/AppError.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { refreshTokenSign, tokenSign } from '../utils/handleJwt.js';
-import { compare } from 'bcryptjs';
 import RefreshToken from '../models/RefreshToken.js';
+import { hash, compare } from 'bcrypt'
 
 // POST /api/user/register
 export const register = async (req, res) => {
@@ -257,4 +257,27 @@ export const deleteUser = async (req, res) => {
       message: "Usuario y todos sus datos eliminados permanentemente (hard delete)" 
     });
   }
+};
+
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user._id;
+
+  const user = await User.findById(userId).select('+password');
+  
+  if (!user) {
+    throw AppError.notFound('Usuario no encontrado');
+  }
+
+  const isMatch = await compare(currentPassword, user.password);
+  if (!isMatch) {
+    throw AppError.unauthorized('La contraseña actual es incorrecta');
+  }
+
+  user.password = await hash(newPassword, 10);
+  await user.save();
+
+  res.status(200).json({ 
+    message: "Contraseña actualizada con éxito" 
+  });
 };

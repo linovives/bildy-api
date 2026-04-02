@@ -7,7 +7,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user100@example.com",
+  "email": "user5@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 ### 2. Validación
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2U0NDZiNDE3Njc0MDFlODFkZjA4NyIsImlhdCI6MTc3NTEyNTYxMSwiZXhwIjoxNzc1MTI2NTExfQ.gseKBX5hE_5UtOUlILc9x0YQuWdHUk42rjETkzqk9sM
-@codigo = 328662
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2VjODQzN2ExMjM2MmYyNTk2ZGRjNCIsImlhdCI6MTc3NTE1OTM2MywiZXhwIjoxNzc1MTYwMjYzfQ.u8krihz-aG_QAd4D4I1hmJPBQ29RpryPJVOEhp6_tRk
+@codigo = 316803
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{token}}
@@ -32,12 +32,12 @@ POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user4@example.com",
+  "email": "user5@example.com",
   "password": "password123"
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxNDUyNjAsImV4cCI6MTc3NTE0NjE2MH0.fA_hVMmvmlqXOatQT2DSk4ibcj49gkvf6u90ky5Rixc
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNlYzg0MzdhMTIzNjJmMjU5NmRkYzQiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxNTk0MjYsImV4cCI6MTc3NTE2MDMyNn0.PXs2FRs_n91xr6rIlPPPmH_2oGXhfzC_OJ5RD3VX6gg
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -104,3 +104,13 @@ Authorization: Bearer {{login_token}}
 ### 8B. Hard Delete 
 DELETE {{host}}/user
 Authorization: Bearer {{login_token}}
+
+### 9. Cambiar contraseña
+PUT {{host}}/user/password
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "nuevaPassword456",
+  "newPassword": "nuevaPassword4567"
+}

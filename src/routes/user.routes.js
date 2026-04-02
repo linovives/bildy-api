@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { register, validateEmail, login, updateProfile, updateCompany, updateLogo, getUserProfile, 
-         refreshSession, logoutSession, deleteUser } from '../controllers/user.controllers.js';
+         refreshSession, logoutSession, deleteUser, changePassword } from '../controllers/user.controllers.js';
 import { validateBody } from '../middleware/validate.middleware.js';
 import { validateUser } from '../middleware/auth.middleware.js';
-import { registerSchema, validateEmailSchema, loginSchema, updateProfileSchema, companySchema } from '../validators/user.validator.js';
+import { registerSchema, validateEmailSchema, loginSchema, updateProfileSchema, companySchema, changePasswordSchema } from '../validators/user.validator.js';
 import { uploadLogo } from '../middleware/upload.middleware.js';
 
 const router = Router();
@@ -29,9 +29,15 @@ router.patch('/logo', validateUser, uploadLogo, updateLogo);
 // GET /api/user
 router.get('/', validateUser, getUserProfile);
 
-router.post('/refresh', refreshSession); 
+// POST /api/user/refresh
+router.post('/refresh', refreshSession);  
 
+// POST /api/user/logout
 router.post('/logout', validateUser, logoutSession);
 
+// DELETE /api/user
 router.delete('/', validateUser, deleteUser);
+
+// PUT /api/user/password
+router.put('/password', validateUser, validateBody(changePasswordSchema), changePassword);
 export default router;
