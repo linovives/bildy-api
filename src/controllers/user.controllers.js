@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { refreshTokenSign, tokenSign } from '../utils/handleJwt.js';
 import { compare } from 'bcryptjs';
+import RefreshToken from '../models/RefreshToken.js';
 
 // POST /api/user/register
 export const register = async (req, res) => {
@@ -92,6 +93,12 @@ export const login = async (req, res) => {
 
   const accessToken = tokenSign(user);
   const refreshToken = refreshTokenSign(user);
+  
+  await RefreshToken.create({
+    token: refreshToken,
+    userId: user._id,
+    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) 
+  });
 
   res.status(200).json({
     user: {
@@ -199,4 +206,30 @@ export const getUserProfile = async (req, res) => {
       company: company
     }
   });
+};
+
+// POST /api/user/refresh
+export const refreshSession = async (req, res) => {
+  const { refreshToken: tokenRecibido } = req.body;
+  if (!tokenRecibido) throw AppError.unauthorized('Token no proporcionado');
+
+  const tokenDoc = await RefreshToken.findOne({ token: tokenRecibido });
+  
+  if (!tokenDoc || tokenDoc.expiryDate < new Date()) {
+    if (tokenDoc) await RefreshToken.deleteOne({ _id: tokenDoc._id });
+    throw AppError.unauthorized('Refresh token inválido o expirado');
+  }
+  const accessToken = tokenSign({ _id: tokenDoc.userId }); 
+
+  res.json({ accessToken });
+};
+
+// POST /api/user/logout
+export const logoutSession = async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) throw AppError.badRequest('Se requiere el refreshToken para cerrar sesión');
+  
+  await RefreshToken.deleteOne({ token: refreshToken });
+
+  res.status(200).json({ message: "Sesión cerrada correctamente" });
 };

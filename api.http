@@ -37,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxMzkxOTIsImV4cCI6MTc3NTE0MDA5Mn0.hXkFXjXvUFSulqoZpM9F4NuqcKNE7pwJa1-bAVwYOaQ
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxNDA0MDksImV4cCI6MTc3NTE0MTMwOX0.F7uHvWdU_35Alzn3HV3M02VyxZWZOfLnJjip4u6ZkTg
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -77,3 +77,22 @@ Content-Type: image/png
 ### 6. Obtener perfil completo
 GET {{host}}/user
 Authorization: Bearer {{login_token}}
+
+### 7A. Refresh Token
+@refresh_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJpYXQiOjE3NzUxNDAwMzUsImV4cCI6MTc3NTc0NDgzNX0.Cp9B74z3EtTibPRoJoHxGAHCjudPUdf_7rSxkXrjE0w
+
+POST {{host}}/user/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+### 7B. Logout
+POST {{host}}/user/logout
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
