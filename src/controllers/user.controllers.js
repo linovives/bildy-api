@@ -233,3 +233,28 @@ export const logoutSession = async (req, res) => {
 
   res.status(200).json({ message: "Sesión cerrada correctamente" });
 };
+
+
+export const deleteUser = async (req, res) => {
+  const { soft } = req.query; 
+  const userId = req.user._id;
+
+  if (soft === 'true') {
+    // Soft delete
+    await User.findByIdAndUpdate(userId, { deleted: true });
+    
+
+    res.status(200).json({ 
+      message: "Usuario desactivado correctamente (soft delete)" 
+    });
+  } else {
+    // Hard delete
+    await RefreshToken.deleteMany({ userId });
+    await Company.deleteOne({ owner: userId });    
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ 
+      message: "Usuario y todos sus datos eliminados permanentemente (hard delete)" 
+    });
+  }
+};

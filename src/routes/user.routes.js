@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { register, validateEmail, login, updateProfile, updateCompany, updateLogo, getUserProfile, refreshSession, logoutSession } from '../controllers/user.controllers.js';
+import { register, validateEmail, login, updateProfile, updateCompany, updateLogo, getUserProfile, 
+         refreshSession, logoutSession, deleteUser } from '../controllers/user.controllers.js';
 import { validateBody } from '../middleware/validate.middleware.js';
 import { validateUser } from '../middleware/auth.middleware.js';
 import { registerSchema, validateEmailSchema, loginSchema, updateProfileSchema, companySchema } from '../validators/user.validator.js';
@@ -30,6 +31,7 @@ router.get('/', validateUser, getUserProfile);
 
 router.post('/refresh', refreshSession); 
 
-
 router.post('/logout', validateUser, logoutSession);
+
+router.delete('/', validateUser, deleteUser);
 export default router;

@@ -37,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxNDA0MDksImV4cCI6MTc3NTE0MTMwOX0.F7uHvWdU_35Alzn3HV3M02VyxZWZOfLnJjip4u6ZkTg
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiZ3Vlc3QiLCJpYXQiOjE3NzUxNDUyNjAsImV4cCI6MTc3NTE0NjE2MH0.fA_hVMmvmlqXOatQT2DSk4ibcj49gkvf6u90ky5Rixc
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -96,3 +96,11 @@ Content-Type: application/json
 {
   "refreshToken": "{{refresh_token}}"
 }
+
+### 8A. Soft Delete
+DELETE {{host}}/user?soft=true
+Authorization: Bearer {{login_token}}
+
+### 8B. Hard Delete 
+DELETE {{host}}/user
+Authorization: Bearer {{login_token}}
