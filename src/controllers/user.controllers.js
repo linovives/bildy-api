@@ -157,3 +157,24 @@ export const updateCompany = async (req, res) => {
     company
   });
 };
+
+export const updateLogo = async (req, res) => {
+  if (!req.file) {
+    throw AppError.badRequest('No se ha enviado ninguna imagen en el campo "logo"');
+  }
+
+  const company = await Company.findOne({ owner: req.user._id });
+
+  if (!company) {
+    throw AppError.notFound('No tienes una compañía asociada.');
+  }
+
+  company.logo = `/uploads/${req.file.filename}`;
+  await company.save();
+
+  res.status(200).json({
+    message: "Logo de la compañía actualizado correctamente",
+    logo: company.logo,
+    companyName: company.name
+  });
+};

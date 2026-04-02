@@ -9,6 +9,6 @@ app.use(helmet());
 
 
 app.use('/api/user', router);
-
+app.use('/uploads', express.static('uploads'));
 
 export default app;

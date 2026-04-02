@@ -7,7 +7,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user4@example.com",
+  "email": "user100@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 ### 2. Validación
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2NlZTc1ZmNlN2RmOGQzODY0MDIwYyIsImlhdCI6MTc3NTAzODA2OSwiZXhwIjoxNzc1MDM4OTY5fQ.8IRmIzVLU9nQNwfao6pI_VuJBk9RlRCHja4pNdc6A-c
-@codigo = 865683
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2U0NDZiNDE3Njc0MDFlODFkZjA4NyIsImlhdCI6MTc3NTEyNTYxMSwiZXhwIjoxNzc1MTI2NTExfQ.gseKBX5hE_5UtOUlILc9x0YQuWdHUk42rjETkzqk9sM
+@codigo = 328662
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{token}}
@@ -37,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUwNTc0NzcsImV4cCI6MTc3NTA1ODM3N30.bUUa7WA5H9PFEAxADskRvm2OZ9zCpiH7zJHrL3wwMME
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxMjU2NjIsImV4cCI6MTc3NTEyNjU2Mn0.hCb48y1aHpKRVzFC0Ri8-XEfX_HimCVuCGcllI7zxP8
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -61,3 +61,15 @@ Content-Type: application/json
   },
   "isFreelance": false
 }
+
+### 5. Subir logo
+PATCH {{host}}/user/logo
+Authorization: Bearer {{login_token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="logo"; filename="test-logo.png"
+Content-Type: image/png
+
+< ./uploads/test-logo.png
+--boundary--
