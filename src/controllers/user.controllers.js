@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { refreshTokenSign, tokenSign } from '../utils/handleJwt.js';
 import RefreshToken from '../models/RefreshToken.js';
 import { hash, compare } from 'bcrypt'
+import eventEmitter from '../utils/events.js';
 
 // POST /api/user/register
 export const register = async (req, res) => {
@@ -279,5 +280,38 @@ export const changePassword = async (req, res) => {
 
   res.status(200).json({ 
     message: "Contraseña actualizada con éxito" 
+  });
+};
+
+
+export const inviteUser = async (req, res) => {
+  const { email, name, lastName } = req.body;
+  const adminUser = req.user;
+
+  if (adminUser.role !== 'admin') {
+    throw AppError.forbidden('Acceso denegado: Solo los administradores pueden invitar');
+  }
+
+  const newUser = new User({
+    email,
+    name,
+    lastName,
+    role: 'guest',
+    company: adminUser.company, 
+    status: 'verified',
+    password: await hash('password123', 10)
+  });
+
+  await newUser.save({ validateBeforeSave: false });
+
+  eventEmitter.emit('user:invited', newUser);
+
+  res.status(201).json({
+    message: "Invitación enviada y usuario creado",
+    data: {
+      email: newUser.email,
+      role: newUser.role,
+      company: newUser.company
+    }
   });
 };

@@ -7,7 +7,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user5@example.com",
+  "email": "user6@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -16,8 +16,8 @@ Content-Type: application/json
 
 ### 2. Validación
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2VjODQzN2ExMjM2MmYyNTk2ZGRjNCIsImlhdCI6MTc3NTE1OTM2MywiZXhwIjoxNzc1MTYwMjYzfQ.u8krihz-aG_QAd4D4I1hmJPBQ29RpryPJVOEhp6_tRk
-@codigo = 316803
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2Y2MDc2MGRkZmUzMzM0MWExMWVkOCIsImlhdCI6MTc3NTE5ODMyNywiZXhwIjoxNzc1MTk5MjI3fQ.S9cPmXVmKaLw7Iv8Pxn4wVxW6LatwDvgp7S-EcabYMs
+@codigo = 331938
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{token}}
@@ -32,12 +32,12 @@ POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user5@example.com",
+  "email": "user6@example.com",
   "password": "password123"
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNlYzg0MzdhMTIzNjJmMjU5NmRkYzQiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxNTk0MjYsImV4cCI6MTc3NTE2MDMyNn0.PXs2FRs_n91xr6rIlPPPmH_2oGXhfzC_OJ5RD3VX6gg
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNmNjA3NjBkZGZlMzMzNDFhMTFlZDgiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxOTg0NzgsImV4cCI6MTc3NTE5OTM3OH0.DqJD6XcyXyhowQooorfgXzQsD3c6JnLt5xPIHrKP3XE
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -113,4 +113,15 @@ Content-Type: application/json
 {
   "currentPassword": "nuevaPassword456",
   "newPassword": "nuevaPassword4567"
+}
+
+### 10. Invitar compañero
+POST {{host}}/user/invite
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "email": "companero1@example.com",
+  "name": "Invitado",
+  "lastName": "Invitado"
 }
