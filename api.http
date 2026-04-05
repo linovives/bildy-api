@@ -3,24 +3,26 @@
 @host = http://{{hostname}}:{{port}}/api
 
 ###  1. Registro
+# @name registro
 POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user6@example.com",
+  "email": "user91@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
   "nif": "12345678X"
 }
+### 
+@registro_token = {{registro.response.body.data.accessToken}}
 
 ### 2. Validación
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Y2Y2MDc2MGRkZmUzMzM0MWExMWVkOCIsImlhdCI6MTc3NTE5ODMyNywiZXhwIjoxNzc1MTk5MjI3fQ.S9cPmXVmKaLw7Iv8Pxn4wVxW6LatwDvgp7S-EcabYMs
-@codigo = 331938
+@codigo = 514294
 
 PUT {{host}}/user/validation
-Authorization: Bearer {{token}}
+Authorization: Bearer {{registro_token}}
 Content-Type: application/json
 
 {
@@ -28,16 +30,19 @@ Content-Type: application/json
 }
 
 ### 3. Login
+# @name login
 POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user6@example.com",
+  "email": "user91@example.com",
   "password": "password123"
 }
+###
+@login_token = {{login.response.body.accessToken}}
+@refresh_token = {{login.response.body.refreshToken}}
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNmNjA3NjBkZGZlMzMzNDFhMTFlZDgiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUzODA5MjMsImV4cCI6MTc3NTM4MTgyM30.4ilqXA0I684jxfpi4u8weeJLvwa6Zpb7yziP_vpXNfo
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -80,7 +85,6 @@ GET {{host}}/user
 Authorization: Bearer {{login_token}}
 
 ### 7A. Refresh Token
-@refresh_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNjZWU3NWZjZTdkZjhkMzg2NDAyMGMiLCJpYXQiOjE3NzUxNDAwMzUsImV4cCI6MTc3NTc0NDgzNX0.Cp9B74z3EtTibPRoJoHxGAHCjudPUdf_7rSxkXrjE0w
 
 POST {{host}}/user/refresh
 Content-Type: application/json
@@ -112,7 +116,7 @@ Authorization: Bearer {{login_token}}
 Content-Type: application/json
 
 {
-  "currentPassword": "nuevaPassword456",
+  "currentPassword": "password123",
   "newPassword": "nuevaPassword4567"
 }
 
@@ -122,13 +126,13 @@ Authorization: Bearer {{login_token}}
 Content-Type: application/json
 
 {
-  "email": "companero1@example.com",
+  "email": "companero1123@example.com",
   "name": "Invitado",
   "lastName": "Invitado"
 }
 
 ### Prueba punto extra: empresa sin nombre (Debe dar 400)
-POST {{host}}/user/onboarding
+PATCH {{host}}/user/company
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
 
