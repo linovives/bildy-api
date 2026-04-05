@@ -32,6 +32,8 @@ export const register = async (req, res) => {
     verificationCode
     });
 
+  eventEmitter.emit('user:registered', user);
+
   const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -61,6 +63,8 @@ export const validateEmail = async (req, res) => {
     user.verificationCode = undefined;
     user.verificationAttempts = 3;
     await user.save();
+
+    eventEmitter.emit('user:verified', user);
 
     return res.status(200).json({ message: 'Email verificado correctamente' });
   }
@@ -244,16 +248,19 @@ export const deleteUser = async (req, res) => {
   if (soft === 'true') {
     // Soft delete
     await User.findByIdAndUpdate(userId, { deleted: true });
-    
+    eventEmitter.emit('user:deleted', req.user.email);
 
     res.status(200).json({ 
       message: "Usuario desactivado correctamente (soft delete)" 
     });
   } else {
     // Hard delete
+    const userEmail = req.user.email;
     await RefreshToken.deleteMany({ userId });
     await Company.deleteOne({ owner: userId });    
     await User.findByIdAndDelete(userId);
+
+    eventEmitter.emit('user:deleted', req.user.email);
 
     res.status(200).json({ 
       message: "Usuario y todos sus datos eliminados permanentemente (hard delete)" 
