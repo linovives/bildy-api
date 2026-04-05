@@ -37,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4A. Onboarding
-@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNmNjA3NjBkZGZlMzMzNDFhMTFlZDgiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUxOTg0NzgsImV4cCI6MTc3NTE5OTM3OH0.DqJD6XcyXyhowQooorfgXzQsD3c6JnLt5xPIHrKP3XE
+@login_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWNmNjA3NjBkZGZlMzMzNDFhMTFlZDgiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUzODA5MjMsImV4cCI6MTc3NTM4MTgyM30.4ilqXA0I684jxfpi4u8weeJLvwa6Zpb7yziP_vpXNfo
 PUT {{host}}/user/register
 Authorization: Bearer {{login_token}}
 Content-Type: application/json
@@ -54,12 +54,13 @@ Authorization: Bearer {{login_token}}
 Content-Type: application/json
 
 {
+  "isFreelance": false,
   "name": "Nueva Empresa S.L.",
   "cif": "B99999999",
   "address": {
+    "street": "Calle Mayor, 15",
     "city": "Castellón"
-  },
-  "isFreelance": false
+  }
 }
 
 ### 5. Subir logo
@@ -124,4 +125,14 @@ Content-Type: application/json
   "email": "companero1@example.com",
   "name": "Invitado",
   "lastName": "Invitado"
+}
+
+### Prueba punto extra: empresa sin nombre (Debe dar 400)
+POST {{host}}/user/onboarding
+Authorization: Bearer {{login_token}}
+Content-Type: application/json
+
+{
+  "isFreelance": false,
+  "cif": "B12345678"
 }

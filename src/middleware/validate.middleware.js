@@ -24,15 +24,24 @@ export const validateBody = (schema) => (req, res, next) => {
     req.body = schema.parse(req.body);
     next();
   } catch (error) {
-    const details = error.errors.map(e => ({
+    const issues = error.errors || error.issues || [];
+
+    const details = issues.map(e => ({
       field: e.path.join('.'),
       message: e.message
     }));
-    
-    next(AppError.validation('Error de validación en el cuerpo de la petición', details));
+
+    if (details.length === 0) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.status(400).json({ 
+      status: 'error',
+      message: 'Error de validación',
+      details 
+    });
   }
 };
-
 
 export const validateObjectId = (paramName = 'id') => (req, res, next) => {
   const id = req.params[paramName];

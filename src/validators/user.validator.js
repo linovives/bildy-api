@@ -27,18 +27,33 @@ export const updateProfileSchema = z.object({
   nif: z.string().min(1, "El NIF es obligatorio")
 });
 
-export const companySchema = z.object({
-  name: z.string().optional(), 
-  cif: z.string().optional(),
-  address: z.object({
-    street: z.string().optional(),
-    number: z.string().optional(),
-    postal: z.string().optional(),
-    city: z.string().optional(),
-    province: z.string().optional()
-  }).optional(),
-  isFreelance: z.boolean().default(false)
-});
+export const companySchema = z.discriminatedUnion("isFreelance", [
+  z.object({
+    isFreelance: z.literal(true),
+    name: z.string().optional(),
+    cif: z.string().optional(),
+    address: z.object({
+      street: z.string().optional(),
+      number: z.string().optional(),
+      postal: z.string().optional(),
+      city: z.string().optional(),
+      province: z.string().optional()
+    }).optional()
+  }),
+  
+  z.object({
+    isFreelance: z.literal(false),
+    name: z.string().min(1, "El nombre de la empresa es obligatorio para no-freelance"),
+    cif: z.string().min(1, "El CIF es obligatorio para no-freelance"),
+    address: z.object({
+      street: z.string().min(1, "La calle es obligatoria"),
+      number: z.string().optional(),
+      postal: z.string().optional(),
+      city: z.string().optional(),
+      province: z.string().optional()
+    }).optional()
+  })
+]);
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "La contraseña actual es obligatoria"),

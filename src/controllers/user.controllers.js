@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { refreshTokenSign, tokenSign } from '../utils/handleJwt.js';
 import RefreshToken from '../models/RefreshToken.js';
 import { hash, compare } from 'bcrypt'
-import eventEmitter from '../utils/events.js';
+import eventEmitter from '../services/events.js';
 
 // POST /api/user/register
 export const register = async (req, res) => {
