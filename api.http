@@ -8,7 +8,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user91@example.com",
+  "email": "user101@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ### 2. Validación
 
-@codigo = 514294
+@codigo = 480933
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{registro_token}}
@@ -35,7 +35,7 @@ POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user91@example.com",
+  "email": "user101@example.com",
   "password": "password123"
 }
 ###
