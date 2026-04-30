@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import router from './routes/user.routes.js';
+import clientRouter from './routes/client.routes.js';
 import mongoSanitizeMiddleware from './middleware/sanitize.middleware.js';
 import limiter from './middleware/rate-limiter.middleware.js';
 import errorHandler from './middleware/errorHandler.middleware.js';
@@ -13,7 +14,7 @@ app.use(express.json());
 
 morganBody(app, {
   noColors: true,
-  skip: (req, res) => res.statusCode < 400, 
+  skip: (req, res) => res.statusCode < 400,
   stream: loggerStream
 });
 
@@ -23,6 +24,7 @@ app.use(mongoSanitizeMiddleware);
 app.use('/api', limiter);
 
 app.use('/api/user', router);
+app.use('/api/client', clientRouter);
 app.use('/uploads', express.static('uploads'));
 
 app.use(errorHandler);
