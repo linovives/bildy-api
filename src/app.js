@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import router from './routes/user.routes.js';
 import clientRouter from './routes/client.routes.js';
+import projectRouter from './routes/project.routes.js';
 import mongoSanitizeMiddleware from './middleware/sanitize.middleware.js';
 import limiter from './middleware/rate-limiter.middleware.js';
 import errorHandler from './middleware/errorHandler.middleware.js';
@@ -25,6 +26,7 @@ app.use('/api', limiter);
 
 app.use('/api/user', router);
 app.use('/api/client', clientRouter);
+app.use('/api/project', projectRouter);
 app.use('/uploads', express.static('uploads'));
 
 app.use(errorHandler);
