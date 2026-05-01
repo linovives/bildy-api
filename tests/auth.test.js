@@ -1,7 +1,15 @@
 import request from 'supertest';
 import app from '../src/app.js';
 import User from '../src/models/User.js';
+import Company from '../src/models/Company.js';
 import bcrypt from 'bcryptjs';
+
+const getVerifiedToken = async () => {
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
+  await User.create({ ...userData, password: hashedPassword, status: 'verified' });
+  const loginRes = await request(app).post('/api/user/login').send({ email: userData.email, password: userData.password });
+  return loginRes.body.accessToken;
+};
 
 const userData = {
   email: 'test@bildy.com',
@@ -121,5 +129,96 @@ describe('GET /api/user', () => {
   test('falla sin token', async () => {
     const res = await request(app).get('/api/user');
     expect(res.status).toBe(401);
+  });
+});
+
+describe('PUT /api/user/register (updateProfile)', () => {
+  test('actualiza el perfil del usuario', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .put('/api/user/register')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Nuevo', lastName: 'Nombre', nif: '87654321B' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.name).toBe('Nuevo');
+  });
+});
+
+describe('PATCH /api/user/company', () => {
+  test('crea una compañía', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .patch('/api/user/company')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Mi Empresa', cif: 'B99999999' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.company.cif).toBe('B99999999');
+  });
+
+  test('se une a una compañía existente', async () => {
+    const token = await getVerifiedToken();
+    await request(app).patch('/api/user/company').set('Authorization', `Bearer ${token}`).send({ name: 'Empresa Shared', cif: 'C11111111' });
+
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    await User.create({ ...userData, email: 'otro@bildy.com', password: hashedPassword, status: 'verified' });
+    const loginRes = await request(app).post('/api/user/login').send({ email: 'otro@bildy.com', password: userData.password });
+    const token2 = loginRes.body.accessToken;
+
+    const res = await request(app)
+      .patch('/api/user/company')
+      .set('Authorization', `Bearer ${token2}`)
+      .send({ name: 'Empresa Shared', cif: 'C11111111' });
+
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('PUT /api/user/password', () => {
+  test('cambia la contraseña correctamente', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .put('/api/user/password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: userData.password, newPassword: 'NewPassword456!' });
+
+    expect(res.status).toBe(200);
+  });
+
+  test('falla con contraseña actual incorrecta', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .put('/api/user/password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: 'wrongpassword', newPassword: 'NewPassword456!' });
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('DELETE /api/user', () => {
+  test('elimina el usuario (hard delete)', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .delete('/api/user')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+  });
+
+  test('archiva el usuario (soft delete)', async () => {
+    const token = await getVerifiedToken();
+
+    const res = await request(app)
+      .delete('/api/user?soft=true')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
   });
 });
