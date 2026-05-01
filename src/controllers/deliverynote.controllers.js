@@ -1,6 +1,8 @@
 import DeliveryNote from '../models/DeliveryNote.js';
 import Project from '../models/Project.js';
 import { AppError } from '../utils/AppError.js';
+import { uploadSignature, uploadPdf, deleteLocalFile } from '../services/storage.service.js';
+import { generateDeliveryNotePdf } from '../services/pdf.service.js';
 
 // POST /api/deliverynote
 export const createDeliveryNote = async (req, res) => {
@@ -73,6 +75,54 @@ export const getDeliveryNoteById = async (req, res) => {
   if (!note) throw AppError.notFound('Albarán no encontrado');
 
   res.status(200).json({ data: note });
+};
+
+// PATCH /api/deliverynote/:id/sign
+export const signDeliveryNote = async (req, res) => {
+  const note = await DeliveryNote.findOne({ _id: req.params.id, company: req.user.company, deleted: false });
+  if (!note) throw AppError.notFound('Albarán no encontrado');
+  if (note.signed) throw AppError.badRequest('El albarán ya está firmado');
+  if (!req.file) throw AppError.badRequest('Se requiere imagen de firma');
+
+  const signatureUrl = await uploadSignature(req.file.path);
+  await deleteLocalFile(req.file.path);
+
+  note.signed = true;
+  note.signedAt = new Date();
+  note.signatureUrl = signatureUrl;
+
+  const populated = await note.populate([
+    { path: 'user', select: 'name email' },
+    { path: 'client', select: 'name cif email' },
+    { path: 'project', select: 'name projectCode' }
+  ]);
+  const pdfBuffer = await generateDeliveryNotePdf(populated);
+  note.pdfUrl = await uploadPdf(pdfBuffer);
+
+  await note.save();
+
+  res.status(200).json({ data: note });
+};
+
+// GET /api/deliverynote/pdf/:id
+export const getDeliveryNotePdf = async (req, res) => {
+  const note = await DeliveryNote.findOne({ _id: req.params.id, company: req.user.company, deleted: false })
+    .populate('user', 'name email')
+    .populate('client', 'name cif email')
+    .populate('project', 'name projectCode');
+
+  if (!note) throw AppError.notFound('Albarán no encontrado');
+
+  if (note.pdfUrl) {
+    return res.redirect(note.pdfUrl);
+  }
+
+  const pdfBuffer = await generateDeliveryNotePdf(note);
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `inline; filename="albaran-${note._id}.pdf"`
+  });
+  res.send(pdfBuffer);
 };
 
 // DELETE /api/deliverynote/:id

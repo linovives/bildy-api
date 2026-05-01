@@ -27,3 +27,17 @@ export const uploadLogo = multer({
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
 }).single("logo");
+
+const signatureStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `signature-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+  }
+});
+
+export const uploadSignature = multer({
+  storage: signatureStorage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+}).single('signature');
