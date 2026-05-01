@@ -1,5 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 import router from './routes/user.routes.js';
 import clientRouter from './routes/client.routes.js';
 import projectRouter from './routes/project.routes.js';
@@ -30,6 +32,7 @@ app.use('/api/client', clientRouter);
 app.use('/api/project', projectRouter);
 app.use('/api/deliverynote', deliveryNoteRouter);
 app.use('/uploads', express.static('uploads'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 
