@@ -18,7 +18,7 @@ app.use(express.json());
 
 morganBody(app, {
   noColors: true,
-  skip: (req, res) => res.statusCode < 400,
+  skip: (req, res) => res.statusCode < 500,
   stream: loggerStream
 });
 
