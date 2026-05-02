@@ -10,11 +10,12 @@ export const validate = (schema) => (req, res, next) => {
     });
     next();
   } catch (error) {
-    const details = error.errors.map(e => ({
+    const issues = error.issues || error.errors || [];
+    const details = issues.map(e => ({
       field: e.path.join('.'),
       message: e.message
     }));
-    
+
     next(AppError.validation('Error de validación', details));
   }
 };
