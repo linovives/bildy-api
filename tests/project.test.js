@@ -41,6 +41,8 @@ beforeEach(async () => {
   clientId = clientRes.body.data._id;
 });
 
+// POST /api/project
+
 describe('POST /api/project', () => {
   test('crea un proyecto correctamente', async () => {
     const res = await request(app)
@@ -66,11 +68,21 @@ describe('POST /api/project', () => {
     expect(res.status).toBe(404);
   });
 
+  test('falla si faltan campos obligatorios', async () => {
+    const res = await request(app)
+      .post('/api/project')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Solo nombre' });
+    expect(res.status).toBe(400);
+  });
+
   test('falla sin token', async () => {
     const res = await request(app).post('/api/project').send({ ...projectData, client: clientId });
     expect(res.status).toBe(401);
   });
 });
+
+// GET /api/project
 
 describe('GET /api/project', () => {
   test('lista los proyectos con paginación', async () => {
@@ -93,7 +105,14 @@ describe('GET /api/project', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.length).toBeGreaterThan(0);
   });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/project');
+    expect(res.status).toBe(401);
+  });
 });
+
+// GET /api/project/:id
 
 describe('GET /api/project/:id', () => {
   test('obtiene un proyecto por id', async () => {
@@ -110,7 +129,14 @@ describe('GET /api/project/:id', () => {
     const res = await request(app).get('/api/project/000000000000000000000000').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(404);
   });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/project/000000000000000000000000');
+    expect(res.status).toBe(401);
+  });
 });
+
+// PUT /api/project/:id
 
 describe('PUT /api/project/:id', () => {
   test('actualiza un proyecto', async () => {
@@ -125,7 +151,26 @@ describe('PUT /api/project/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Reforma actualizada');
   });
+
+  test('devuelve 404 si no existe', async () => {
+    const res = await request(app)
+      .put('/api/project/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Nombre nuevo' });
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app)
+      .put('/api/project/000000000000000000000000')
+      .send({ name: 'Nombre nuevo' });
+
+    expect(res.status).toBe(401);
+  });
 });
+
+// DELETE /api/project/:id
 
 describe('DELETE /api/project/:id', () => {
   test('elimina un proyecto (hard delete)', async () => {
@@ -143,19 +188,67 @@ describe('DELETE /api/project/:id', () => {
     const res = await request(app).delete(`/api/project/${id}?soft=true`).set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
   });
+
+  test('devuelve 404 si no existe', async () => {
+    const res = await request(app)
+      .delete('/api/project/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).delete('/api/project/000000000000000000000000');
+    expect(res.status).toBe(401);
+  });
 });
 
-describe('GET /api/project/archived + PATCH restore', () => {
-  test('lista archivados y restaura uno', async () => {
+// GET /api/project/archived
+
+describe('GET /api/project/archived', () => {
+  test('lista los proyectos archivados', async () => {
+    const created = await request(app).post('/api/project').set('Authorization', `Bearer ${token}`).send({ ...projectData, client: clientId });
+    await request(app).delete(`/api/project/${created.body.data._id}?soft=true`).set('Authorization', `Bearer ${token}`);
+
+    const res = await request(app).get('/api/project/archived').set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/project/archived');
+    expect(res.status).toBe(401);
+  });
+});
+
+// PATCH /api/project/:id/restore
+
+describe('PATCH /api/project/:id/restore', () => {
+  test('restaura un proyecto archivado', async () => {
     const created = await request(app).post('/api/project').set('Authorization', `Bearer ${token}`).send({ ...projectData, client: clientId });
     const id = created.body.data._id;
-
     await request(app).delete(`/api/project/${id}?soft=true`).set('Authorization', `Bearer ${token}`);
 
-    const archived = await request(app).get('/api/project/archived').set('Authorization', `Bearer ${token}`);
-    expect(archived.body.data).toHaveLength(1);
+    const res = await request(app)
+      .patch(`/api/project/${id}/restore`)
+      .set('Authorization', `Bearer ${token}`);
 
-    const restore = await request(app).patch(`/api/project/${id}/restore`).set('Authorization', `Bearer ${token}`);
-    expect(restore.status).toBe(200);
+    expect(res.status).toBe(200);
+  });
+
+  test('devuelve 404 si el proyecto no está archivado', async () => {
+    const created = await request(app).post('/api/project').set('Authorization', `Bearer ${token}`).send({ ...projectData, client: clientId });
+
+    const res = await request(app)
+      .patch(`/api/project/${created.body.data._id}/restore`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).patch('/api/project/000000000000000000000000/restore');
+    expect(res.status).toBe(401);
   });
 });
