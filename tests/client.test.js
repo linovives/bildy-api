@@ -36,6 +36,8 @@ beforeEach(async () => {
   token = loginRes.body.accessToken;
 });
 
+// POST /api/client
+
 describe('POST /api/client', () => {
   test('crea un cliente correctamente', async () => {
     const res = await request(app)
@@ -53,11 +55,22 @@ describe('POST /api/client', () => {
     expect(res.status).toBe(409);
   });
 
+  test('falla si faltan campos obligatorios', async () => {
+    const res = await request(app)
+      .post('/api/client')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: 'solo@email.com' });
+
+    expect(res.status).toBe(400);
+  });
+
   test('falla sin token', async () => {
     const res = await request(app).post('/api/client').send(clientData);
     expect(res.status).toBe(401);
   });
 });
+
+// GET /api/client
 
 describe('GET /api/client', () => {
   test('lista los clientes con paginación', async () => {
@@ -82,7 +95,14 @@ describe('GET /api/client', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.length).toBeGreaterThan(0);
   });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/client');
+    expect(res.status).toBe(401);
+  });
 });
+
+// GET /api/client/:id
 
 describe('GET /api/client/:id', () => {
   test('obtiene un cliente por id', async () => {
@@ -104,7 +124,14 @@ describe('GET /api/client/:id', () => {
 
     expect(res.status).toBe(404);
   });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/client/000000000000000000000000');
+    expect(res.status).toBe(401);
+  });
 });
+
+// PUT /api/client/:id
 
 describe('PUT /api/client/:id', () => {
   test('actualiza un cliente', async () => {
@@ -119,7 +146,26 @@ describe('PUT /api/client/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('García Actualizado');
   });
+
+  test('devuelve 404 si no existe', async () => {
+    const res = await request(app)
+      .put('/api/client/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Nuevo nombre' });
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app)
+      .put('/api/client/000000000000000000000000')
+      .send({ name: 'Nuevo nombre' });
+
+    expect(res.status).toBe(401);
+  });
 });
+
+// DELETE /api/client/:id
 
 describe('DELETE /api/client/:id', () => {
   test('elimina un cliente (hard delete)', async () => {
@@ -143,19 +189,69 @@ describe('DELETE /api/client/:id', () => {
 
     expect(res.status).toBe(200);
   });
+
+  test('devuelve 404 si no existe', async () => {
+    const res = await request(app)
+      .delete('/api/client/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).delete('/api/client/000000000000000000000000');
+    expect(res.status).toBe(401);
+  });
 });
 
-describe('GET /api/client/archived + PATCH restore', () => {
-  test('lista archivados y restaura uno', async () => {
+// GET /api/client/archived
+
+describe('GET /api/client/archived', () => {
+  test('lista los clientes archivados', async () => {
+    const created = await request(app).post('/api/client').set('Authorization', `Bearer ${token}`).send(clientData);
+    await request(app).delete(`/api/client/${created.body.data._id}?soft=true`).set('Authorization', `Bearer ${token}`);
+
+    const res = await request(app)
+      .get('/api/client/archived')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).get('/api/client/archived');
+    expect(res.status).toBe(401);
+  });
+});
+
+// PATCH /api/client/:id/restore
+
+describe('PATCH /api/client/:id/restore', () => {
+  test('restaura un cliente archivado', async () => {
     const created = await request(app).post('/api/client').set('Authorization', `Bearer ${token}`).send(clientData);
     const id = created.body.data._id;
-
     await request(app).delete(`/api/client/${id}?soft=true`).set('Authorization', `Bearer ${token}`);
 
-    const archived = await request(app).get('/api/client/archived').set('Authorization', `Bearer ${token}`);
-    expect(archived.body.data).toHaveLength(1);
+    const res = await request(app)
+      .patch(`/api/client/${id}/restore`)
+      .set('Authorization', `Bearer ${token}`);
 
-    const restore = await request(app).patch(`/api/client/${id}/restore`).set('Authorization', `Bearer ${token}`);
-    expect(restore.status).toBe(200);
+    expect(res.status).toBe(200);
+  });
+
+  test('devuelve 404 si el cliente no está archivado', async () => {
+    const created = await request(app).post('/api/client').set('Authorization', `Bearer ${token}`).send(clientData);
+
+    const res = await request(app)
+      .patch(`/api/client/${created.body.data._id}/restore`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app).patch('/api/client/000000000000000000000000/restore');
+    expect(res.status).toBe(401);
   });
 });
