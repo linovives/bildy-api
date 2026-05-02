@@ -1,5 +1,6 @@
 import express from 'express';
 import helmet from 'helmet';
+import mongoose from 'mongoose';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import router from './routes/user.routes.js';
@@ -32,6 +33,15 @@ app.use('/api/client', clientRouter);
 app.use('/api/project', projectRouter);
 app.use('/api/deliverynote', deliveryNoteRouter);
 app.use('/uploads', express.static('uploads'));
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
