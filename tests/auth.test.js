@@ -35,7 +35,7 @@ const getVerifiedSession = async () => {
   };
 };
 
-// ─── REGISTER ────────────────────────────────────────────────────────────────
+//  REGISTER
 
 describe('POST /api/user/register', () => {
   test('registra un usuario correctamente', async () => {
@@ -73,7 +73,7 @@ describe('POST /api/user/register', () => {
   });
 });
 
-// ─── VALIDATION ──────────────────────────────────────────────────────────────
+// VALIDATION 
 
 describe('PUT /api/user/validation', () => {
   test('valida el email con el código correcto', async () => {
@@ -122,7 +122,7 @@ describe('PUT /api/user/validation', () => {
   });
 });
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
+//  LOGIN 
 
 describe('POST /api/user/login', () => {
   beforeEach(async () => {
@@ -180,7 +180,7 @@ describe('POST /api/user/login', () => {
   });
 });
 
-// ─── GET PERFIL ───────────────────────────────────────────────────────────────
+//  GET PERFIL 
 
 describe('GET /api/user', () => {
   test('devuelve el perfil del usuario autenticado', async () => {
@@ -208,7 +208,7 @@ describe('GET /api/user', () => {
   });
 });
 
-// ─── UPDATE PROFILE ───────────────────────────────────────────────────────────
+//  UPDATE PROFILE 
 
 describe('PUT /api/user/register (updateProfile)', () => {
   test('actualiza el perfil del usuario', async () => {
@@ -243,7 +243,7 @@ describe('PUT /api/user/register (updateProfile)', () => {
   });
 });
 
-// ─── COMPANY ──────────────────────────────────────────────────────────────────
+//  COMPANY 
 
 describe('PATCH /api/user/company', () => {
   test('crea una compañía', async () => {
@@ -300,7 +300,7 @@ describe('PATCH /api/user/company', () => {
   });
 });
 
-// ─── LOGO ─────────────────────────────────────────────────────────────────────
+//  LOGO 
 
 describe('PATCH /api/user/logo', () => {
   test('falla sin token', async () => {
@@ -349,7 +349,7 @@ describe('PATCH /api/user/logo', () => {
   });
 });
 
-// ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
+//  CHANGE PASSWORD 
 
 describe('PUT /api/user/password', () => {
   test('cambia la contraseña correctamente', async () => {
@@ -405,7 +405,7 @@ describe('PUT /api/user/password', () => {
   });
 });
 
-// ─── REFRESH TOKEN ────────────────────────────────────────────────────────────
+//  REFRESH TOKEN 
 
 describe('POST /api/user/refresh', () => {
   test('renueva el access token con un refresh token válido', async () => {
@@ -436,7 +436,7 @@ describe('POST /api/user/refresh', () => {
   });
 });
 
-// ─── LOGOUT ───────────────────────────────────────────────────────────────────
+//  LOGOUT 
 
 describe('POST /api/user/logout', () => {
   test('cierra la sesión correctamente', async () => {
@@ -470,7 +470,7 @@ describe('POST /api/user/logout', () => {
   });
 });
 
-// ─── DELETE USER ──────────────────────────────────────────────────────────────
+//  DELETE USER 
 
 describe('DELETE /api/user', () => {
   test('elimina el usuario (hard delete)', async () => {
