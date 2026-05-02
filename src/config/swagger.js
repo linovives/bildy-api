@@ -90,6 +90,35 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time' }
           }
         },
+        User: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string' },
+            lastName: { type: 'string' },
+            nif: { type: 'string' },
+            status: { type: 'string', enum: ['pending', 'verified'] },
+            role: { type: 'string', enum: ['admin', 'user'] },
+            company: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' }
+          }
+        },
+        Company: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            name: { type: 'string' },
+            cif: { type: 'string' },
+            owner: { type: 'string' },
+            logoUrl: { type: 'string' },
+            isFreelance: { type: 'boolean' },
+            address: { $ref: '#/components/schemas/Address' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' }
+          }
+        },
         Error: {
           type: 'object',
           properties: {
