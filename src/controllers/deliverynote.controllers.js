@@ -3,6 +3,7 @@ import Project from '../models/Project.js';
 import { AppError } from '../utils/AppError.js';
 import { uploadSignature, uploadPdf, deleteLocalFile } from '../services/storage.service.js';
 import { generateDeliveryNotePdf } from '../services/pdf.service.js';
+import { getIo } from '../config/socket.js';
 
 // POST /api/deliverynote
 export const createDeliveryNote = async (req, res) => {
@@ -30,6 +31,8 @@ export const createDeliveryNote = async (req, res) => {
     hours,
     workers
   });
+
+  getIo()?.to(user.company.toString()).emit('deliverynote:new', note);
 
   res.status(201).json({ data: note });
 };
@@ -100,6 +103,8 @@ export const signDeliveryNote = async (req, res) => {
   note.pdfUrl = await uploadPdf(pdfBuffer);
 
   await note.save();
+
+  getIo()?.to(req.user.company.toString()).emit('deliverynote:signed', note);
 
   res.status(200).json({ data: note });
 };

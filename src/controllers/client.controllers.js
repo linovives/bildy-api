@@ -1,5 +1,6 @@
 import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
+import { getIo } from '../config/socket.js';
 
 // POST /api/client
 export const createClient = async (req, res) => {
@@ -20,6 +21,8 @@ export const createClient = async (req, res) => {
     phone,
     address
   });
+
+  getIo()?.to(user.company.toString()).emit('client:new', client);
 
   res.status(201).json({ data: client });
 };

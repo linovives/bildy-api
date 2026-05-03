@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
+import { getIo } from '../config/socket.js';
 
 // POST /api/project
 export const createProject = async (req, res) => {
@@ -24,6 +25,8 @@ export const createProject = async (req, res) => {
     notes,
     active
   });
+
+  getIo()?.to(user.company.toString()).emit('project:new', project);
 
   res.status(201).json({ data: project });
 };
