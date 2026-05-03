@@ -1,6 +1,6 @@
 # BildyApp API
 
-Backend completo para la gestión de albaranes digitales. API REST con Node.js y Express que permite gestionar clientes, proyectos y albaranes (partes de horas o materiales) con firma digital, generación de PDF y subida a la nube.
+Full backend for digital delivery note management. REST API built with Node.js and Express for managing clients, projects and delivery notes (hours or materials) with digital signature, PDF generation and cloud storage.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20+-339933)
 ![Express](https://img.shields.io/badge/Express-5-000000)
@@ -10,150 +10,184 @@ Backend completo para la gestión de albaranes digitales. API REST con Node.js y
 
 ## Tech Stack
 
-| Categoría | Tecnología |
-|-----------|------------|
+| Category | Technology |
+|----------|------------|
 | Runtime | Node.js 20+ |
 | Framework | Express 5 |
-| Base de datos | MongoDB + Mongoose |
-| Validación | Zod |
-| Autenticación | JWT + bcryptjs |
-| Subida de archivos | Multer + Cloudinary |
-| Imágenes | Sharp |
-| Generación de PDF | pdfkit |
+| Database | MongoDB + Mongoose |
+| Validation | Zod |
+| Authentication | JWT + bcryptjs |
+| File uploads | Multer + Cloudinary |
+| Image processing | Sharp |
+| PDF generation | pdfkit |
 | Email | Nodemailer + Mailtrap |
-| Documentación | Swagger / OpenAPI 3.0 |
+| Documentation | Swagger / OpenAPI 3.0 |
 | Testing | Jest + Supertest + mongodb-memory-server |
-| Notificaciones | Slack Incoming Webhooks (errores 5XX) |
-| Seguridad | Helmet + rate limiting + mongo-sanitize |
-| Contenedores | Docker + Docker Compose |
+| Notifications | Slack Incoming Webhooks (5XX errors) |
+| Security | Helmet + rate limiting + mongo-sanitize |
+| Containers | Docker + Docker Compose |
+| Real-time | Socket.IO (WebSockets) |
 | CI/CD | GitHub Actions |
 
-## Instalación y ejecución
+## Installation
 
-1. Clona el repositorio e instala dependencias:
+1. Clone the repository and install dependencies:
 
         git clone https://github.com/LinoVives16/bildy-api.git
         cd bildy-api
         npm install
 
-2. Crea el fichero de variables de entorno:
+2. Set up environment variables:
 
         cp .env.example .env
 
-   Rellena las variables en `.env` (ver sección Variables de entorno).
+   Fill in the variables in `.env` (see Environment Variables section).
 
-3. Arranca el servidor:
+3. Start the server:
 
-        npm run dev    # desarrollo (auto-restart)
+        npm run dev    # development (auto-restart on changes)
 
-## Ejecución con Docker
+## Running with Docker
 
-Levanta la aplicación junto con MongoDB con un solo comando:
+Start the app together with MongoDB in one command:
 
         docker compose up --build
 
-La API quedará disponible en `http://localhost:3000`.
+The API will be available at `http://localhost:3000`.
 
-## Variables de entorno
+## Environment Variables
 
-| Variable | Descripción |
+| Variable | Description |
 |----------|-------------|
-| `PORT` | Puerto del servidor (por defecto 3000) |
-| `NODE_ENV` | Entorno (`development` / `test` / `production`) |
-| `MONGO_URL` | URI de conexión a MongoDB |
-| `JWT_SECRET` | Clave secreta para firmar JWT |
-| `JWT_EXPIRES_IN` | Duración del access token (ej. `15m`) |
-| `JWT_REFRESH_EXPIRES_IN` | Duración del refresh token (ej. `7d`) |
-| `CLOUDINARY_CLOUD_NAME` | Nombre del cloud en Cloudinary |
-| `CLOUDINARY_API_KEY` | API Key de Cloudinary |
-| `CLOUDINARY_API_SECRET` | API Secret de Cloudinary |
-| `SLACK_WEBHOOK` | URL del Incoming Webhook de Slack |
-| `MAIL_HOST` | Host SMTP (ej. `sandbox.smtp.mailtrap.io`) |
-| `MAIL_PORT` | Puerto SMTP (ej. `2525`) |
-| `MAIL_USER` | Usuario SMTP |
-| `MAIL_PASS` | Contraseña SMTP |
+| `PORT` | Server port (default 3000) |
+| `NODE_ENV` | Environment (`development` / `test` / `production`) |
+| `MONGO_URL` | MongoDB connection URI |
+| `JWT_SECRET` | Secret key for signing JWTs |
+| `JWT_EXPIRES_IN` | Access token duration (e.g. `15m`) |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token duration (e.g. `7d`) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `SLACK_WEBHOOK` | Slack Incoming Webhook URL |
+| `MAIL_HOST` | SMTP host (e.g. `sandbox.smtp.mailtrap.io`) |
+| `MAIL_PORT` | SMTP port (e.g. `2525`) |
+| `MAIL_USER` | SMTP username |
+| `MAIL_PASS` | SMTP password |
 
-## Ejecutar los tests
+## Running Tests
 
-        npm test              # ejecuta todos los tests
-        npm run test:watch    # modo watch
-        npm run test:coverage # con reporte de cobertura
+        npm test              # run all tests
+        npm run test:watch    # watch mode
+        npm run test:coverage # with coverage report
 
-Los tests usan `mongodb-memory-server` (base de datos en memoria) y no requieren conexión a MongoDB ni a servicios externos.
+Tests use `mongodb-memory-server` (in-memory database) and do not require a real MongoDB connection or any external services.
 
-Cobertura actual: **~87% statements / ~88% lines** (113+ tests).
+Current coverage: **~87% statements / ~88% lines** (113+ tests).
 
-## Documentación Swagger
+## Swagger Docs
 
-Con el servidor arrancado, accede a la UI interactiva en:
+With the server running, access the interactive UI at:
 
         http://localhost:3000/api-docs
 
-## Health check
+## Health Check
 
         GET /health
 
-Devuelve el estado del servidor, la conexión a MongoDB y el uptime del proceso.
+Returns server status, MongoDB connection state and process uptime.
 
 ## API Endpoints
 
-### Usuarios
+### Users
 
-| Método | Endpoint | Descripción | Auth |
+| Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/user/register` | Registrar usuario (envía código por email) | — |
-| PUT | `/api/user/validation` | Validar email con código de 6 dígitos | JWT |
-| POST | `/api/user/login` | Login — devuelve access + refresh token | — |
-| PUT | `/api/user/register` | Actualizar datos personales | JWT |
-| PATCH | `/api/user/company` | Crear o unirse a una compañía | JWT |
-| PATCH | `/api/user/logo` | Subir logo de la compañía | JWT |
-| GET | `/api/user` | Obtener perfil del usuario autenticado | JWT |
-| PUT | `/api/user/password` | Cambiar contraseña | JWT |
-| POST | `/api/user/refresh` | Renovar access token | — |
-| POST | `/api/user/logout` | Cerrar sesión | JWT |
-| DELETE | `/api/user` | Eliminar usuario (`?soft=true` para archivar) | JWT |
-| POST | `/api/user/invite` | Invitar usuario a la compañía (admin) | JWT |
+| POST | `/api/user/register` | Register user (sends verification code by email) | — |
+| PUT | `/api/user/validation` | Validate email with 6-digit code | JWT |
+| POST | `/api/user/login` | Login — returns access + refresh token | — |
+| PUT | `/api/user/register` | Update personal data | JWT |
+| PATCH | `/api/user/company` | Create or join a company | JWT |
+| PATCH | `/api/user/logo` | Upload company logo | JWT |
+| GET | `/api/user` | Get authenticated user profile | JWT |
+| PUT | `/api/user/password` | Change password | JWT |
+| POST | `/api/user/refresh` | Renew access token | — |
+| POST | `/api/user/logout` | Log out | JWT |
+| DELETE | `/api/user` | Delete user (`?soft=true` to archive) | JWT |
+| POST | `/api/user/invite` | Invite user to the company (admin only) | JWT |
 
-### Clientes
+### Clients
 
-| Método | Endpoint | Descripción | Auth |
+| Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/client` | Crear cliente | JWT |
-| PUT | `/api/client/:id` | Actualizar cliente | JWT |
-| GET | `/api/client` | Listar clientes (`?page`, `?limit`, `?name`, `?sort`) | JWT |
-| GET | `/api/client/:id` | Obtener cliente por ID | JWT |
-| DELETE | `/api/client/:id` | Eliminar (`?soft=true` para archivar) | JWT |
-| GET | `/api/client/archived` | Listar clientes archivados | JWT |
-| PATCH | `/api/client/:id/restore` | Restaurar cliente archivado | JWT |
+| POST | `/api/client` | Create client | JWT |
+| PUT | `/api/client/:id` | Update client | JWT |
+| GET | `/api/client` | List clients (`?page`, `?limit`, `?name`, `?sort`) | JWT |
+| GET | `/api/client/:id` | Get client by ID | JWT |
+| DELETE | `/api/client/:id` | Delete (`?soft=true` to archive) | JWT |
+| GET | `/api/client/archived` | List archived clients | JWT |
+| PATCH | `/api/client/:id/restore` | Restore archived client | JWT |
 
-### Proyectos
+### Projects
 
-| Método | Endpoint | Descripción | Auth |
+| Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/project` | Crear proyecto | JWT |
-| PUT | `/api/project/:id` | Actualizar proyecto | JWT |
-| GET | `/api/project` | Listar proyectos (`?page`, `?limit`, `?client`, `?name`, `?active`, `?sort`) | JWT |
-| GET | `/api/project/:id` | Obtener proyecto por ID | JWT |
-| DELETE | `/api/project/:id` | Eliminar (`?soft=true` para archivar) | JWT |
-| GET | `/api/project/archived` | Listar proyectos archivados | JWT |
-| PATCH | `/api/project/:id/restore` | Restaurar proyecto archivado | JWT |
+| POST | `/api/project` | Create project | JWT |
+| PUT | `/api/project/:id` | Update project | JWT |
+| GET | `/api/project` | List projects (`?page`, `?limit`, `?client`, `?name`, `?active`, `?sort`) | JWT |
+| GET | `/api/project/:id` | Get project by ID | JWT |
+| DELETE | `/api/project/:id` | Delete (`?soft=true` to archive) | JWT |
+| GET | `/api/project/archived` | List archived projects | JWT |
+| PATCH | `/api/project/:id/restore` | Restore archived project | JWT |
 
-### Albaranes
+### Delivery Notes
 
-| Método | Endpoint | Descripción | Auth |
+| Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/deliverynote` | Crear albarán (horas o material) | JWT |
-| GET | `/api/deliverynote` | Listar albaranes (`?page`, `?limit`, `?project`, `?client`, `?format`, `?signed`, `?from`, `?to`, `?sort`) | JWT |
-| GET | `/api/deliverynote/:id` | Obtener albarán con datos populados | JWT |
-| GET | `/api/deliverynote/pdf/:id` | Descargar albarán en PDF | JWT |
-| PATCH | `/api/deliverynote/:id/sign` | Firmar albarán (sube firma a Cloudinary y genera PDF) | JWT |
-| DELETE | `/api/deliverynote/:id` | Eliminar albarán (solo si no está firmado) | JWT |
+| POST | `/api/deliverynote` | Create delivery note (hours or material) | JWT |
+| GET | `/api/deliverynote` | List delivery notes (`?page`, `?limit`, `?project`, `?client`, `?format`, `?signed`, `?from`, `?to`, `?sort`) | JWT |
+| GET | `/api/deliverynote/:id` | Get delivery note with populated data | JWT |
+| GET | `/api/deliverynote/pdf/:id` | Download delivery note as PDF | JWT |
+| PATCH | `/api/deliverynote/:id/sign` | Sign delivery note (uploads signature to Cloudinary and generates PDF) | JWT |
+| DELETE | `/api/deliverynote/:id` | Delete delivery note (only if unsigned) | JWT |
 
-## Pruebas con api.http
+## Real-time Events (Socket.IO)
 
-El fichero `api.http` incluye ejemplos de todos los endpoints con variables que capturan tokens automáticamente.
+The server emits WebSocket events so connected clients receive updates instantly without polling.
 
-1. Ejecuta `Register` — el código de verificación llega al email configurado.
-2. Pega el código en `Validation`.
-3. Ejecuta `Login` — actualiza `{{login_token}}` y `{{refresh_token}}` automáticamente.
-4. El resto de peticiones usan los tokens guardados sin copiar manualmente.
+**Connecting:**
+
+```js
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000', {
+  auth: { token: '<your JWT access token>' }
+});
+```
+
+The connection requires a valid JWT token. Each client is automatically joined to a room identified by their `company._id`, so events are only received by users of the same company.
+
+**Events:**
+
+| Event | Triggered when |
+|-------|----------------|
+| `client:new` | A new client is created |
+| `project:new` | A new project is created |
+| `deliverynote:new` | A new delivery note is created |
+| `deliverynote:signed` | A delivery note is signed |
+
+**Example:**
+
+```js
+socket.on('deliverynote:signed', (data) => {
+  console.log('Delivery note signed:', data);
+});
+```
+
+## Testing with api.http
+
+The `api.http` file includes examples for all endpoints with variables that capture tokens automatically.
+
+1. Run `Register` — the verification code is sent to the configured email.
+2. Paste the code into `Validation`.
+3. Run `Login` — updates `{{login_token}}` and `{{refresh_token}}` automatically.
+4. All subsequent requests use the saved tokens without manual copying.
