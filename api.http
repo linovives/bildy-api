@@ -11,7 +11,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user1000@example.com",
+  "email": "user50@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -21,7 +21,7 @@ Content-Type: application/json
 @registro_token = {{registro.response.body.data.accessToken}}
 
 ### Validación con código recibido en Mailtrap
-@codigo = 892904
+@codigo = 614298
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{registro_token}}

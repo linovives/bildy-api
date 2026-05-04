@@ -178,7 +178,7 @@ export const updateLogo = async (req, res) => {
     throw AppError.badRequest('No se ha enviado ninguna imagen en el campo "logo"');
   }
 
-  const company = await Company.findOne({ owner: req.user._id });
+  const company = await Company.findById(req.user.company);
 
   if (!company) {
     throw AppError.notFound('No tienes una compañía asociada.');
