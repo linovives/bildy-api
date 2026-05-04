@@ -230,7 +230,7 @@ describe('GET /api/deliverynote/pdf/:id', () => {
     expect(res.headers['content-type']).toMatch(/application\/pdf/);
   });
 
-  test('redirige si el albarán ya tiene PDF en la nube', async () => {
+  test('devuelve PDF aunque el albarán ya tenga pdfUrl', async () => {
     const created = await request(app).post('/api/deliverynote').set('Authorization', `Bearer ${token}`)
       .send({ ...noteHours, project: projectId, client: clientId });
     await DeliveryNote.findByIdAndUpdate(created.body.data._id, {
@@ -242,7 +242,8 @@ describe('GET /api/deliverynote/pdf/:id', () => {
       .get(`/api/deliverynote/pdf/${created.body.data._id}`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(res.status).toBe(302);
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/pdf/);
   });
 
   test('devuelve 404 si no existe', async () => {
