@@ -2,24 +2,26 @@
 @port = 3000
 @host = http://{{hostname}}:{{port}}/api
 
-###  1. Registro
+### Health check
+GET http://{{hostname}}:{{port}}/health
+
+### Registro (dispara email de verificación a Mailtrap)
 # @name registro
 POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user101@example.com",
+  "email": "user1000@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
   "nif": "12345678X"
 }
-### 
+###
 @registro_token = {{registro.response.body.data.accessToken}}
 
-### 2. Validación
-
-@codigo = 480933
+### Validación con código recibido en Mailtrap
+@codigo = 892904
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{registro_token}}
@@ -29,38 +31,38 @@ Content-Type: application/json
   "code": "{{codigo}}"
 }
 
-### 3. Login
+### Login
 # @name login
 POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user101@example.com",
+  "email": "user1000@example.com",
   "password": "password123"
 }
 ###
-@login_token = {{login.response.body.accessToken}}
+@token = {{login.response.body.accessToken}}
 @refresh_token = {{login.response.body.refreshToken}}
 
-### 4A. Onboarding
+### Onboarding - datos personales
 PUT {{host}}/user/register
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "Lino Modificado",
-  "lastName": "Vives Actualizado",
-  "nif": "87654321Z"
+  "name": "Lino",
+  "lastName": "Vives",
+  "nif": "12345678X"
 }
 
-### 4B. Compañia
+### Crear compañía
 PATCH {{host}}/user/company
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "isFreelance": false,
-  "name": "Nueva Empresa S.L.",
+  "name": "BildyCorp S.L.",
   "cif": "B99999999",
   "address": {
     "street": "Calle Mayor, 15",
@@ -68,9 +70,9 @@ Content-Type: application/json
   }
 }
 
-### 5. Subir logo
+### Subir logo de compañía
 PATCH {{host}}/user/logo
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -80,12 +82,11 @@ Content-Type: image/png
 < ./uploads/test-logo.png
 --boundary--
 
-### 6. Obtener perfil completo
+### Obtener perfil
 GET {{host}}/user
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 
-### 7A. Refresh Token
-
+### Refresh token
 POST {{host}}/user/refresh
 Content-Type: application/json
 
@@ -93,26 +94,18 @@ Content-Type: application/json
   "refreshToken": "{{refresh_token}}"
 }
 
-### 7B. Logout
+### Logout
 POST {{host}}/user/logout
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "refreshToken": "{{refresh_token}}"
 }
 
-### 8A. Soft Delete
-DELETE {{host}}/user?soft=true
-Authorization: Bearer {{login_token}}
-
-### 8B. Hard Delete 
-DELETE {{host}}/user
-Authorization: Bearer {{login_token}}
-
-### 9. Cambiar contraseña
+### Cambiar contraseña
 PUT {{host}}/user/password
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -120,23 +113,266 @@ Content-Type: application/json
   "newPassword": "nuevaPassword4567"
 }
 
-### 10. Invitar compañero
+### Invitar compañero
 POST {{host}}/user/invite
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "email": "companero1123@example.com",
+  "email": "companero@example.com",
   "name": "Invitado",
-  "lastName": "Invitado"
+  "lastName": "Ejemplo"
 }
 
-### Prueba punto extra: empresa sin nombre (Debe dar 400)
+### Soft delete usuario
+DELETE {{host}}/user?soft=true
+Authorization: Bearer {{token}}
+
+### Hard delete usuario
+DELETE {{host}}/user
+Authorization: Bearer {{token}}
+
+### Empresa sin nombre - debe dar 400
 PATCH {{host}}/user/company
-Authorization: Bearer {{login_token}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "isFreelance": false,
   "cif": "B12345678"
 }
+
+### Crear cliente
+# @name crearCliente
+POST {{host}}/client
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "García S.L.",
+  "cif": "B12345678",
+  "email": "contacto@garcia.com",
+  "phone": "612345678",
+  "address": {
+    "street": "Calle Colón",
+    "number": "10",
+    "postal": "46001",
+    "city": "Valencia",
+    "province": "Valencia"
+  }
+}
+###
+@clientId = {{crearCliente.response.body.data._id}}
+
+### Listar clientes con paginación
+GET {{host}}/client?page=1&limit=10&sort=createdAt
+Authorization: Bearer {{token}}
+
+### Buscar cliente por nombre
+GET {{host}}/client?name=García
+Authorization: Bearer {{token}}
+
+### Obtener cliente por ID
+GET {{host}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+
+### Actualizar cliente
+PUT {{host}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phone": "699999999",
+  "email": "nuevo@garcia.com"
+}
+
+### Archivar cliente (soft delete)
+DELETE {{host}}/client/{{clientId}}?soft=true
+Authorization: Bearer {{token}}
+
+### Listar clientes archivados
+GET {{host}}/client/archived
+Authorization: Bearer {{token}}
+
+### Restaurar cliente archivado
+PATCH {{host}}/client/{{clientId}}/restore
+Authorization: Bearer {{token}}
+
+### Eliminar cliente permanentemente
+DELETE {{host}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+
+### CIF duplicado - debe dar 409
+POST {{host}}/client
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Otro cliente",
+  "cif": "B12345678"
+}
+
+### Crear proyecto
+# @name crearProyecto
+POST {{host}}/project
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Reforma Oficina Central",
+  "projectCode": "PRJ-001",
+  "client": "{{clientId}}",
+  "email": "proyecto@garcia.com",
+  "address": {
+    "street": "Av. del Puerto",
+    "number": "5",
+    "postal": "46024",
+    "city": "Valencia",
+    "province": "Valencia"
+  },
+  "notes": "Reforma completa de la planta baja",
+  "active": true
+}
+###
+@projectId = {{crearProyecto.response.body.data._id}}
+
+### Listar proyectos con paginación
+GET {{host}}/project?page=1&limit=10&active=true&sort=-createdAt
+Authorization: Bearer {{token}}
+
+### Filtrar proyectos por cliente
+GET {{host}}/project?client={{clientId}}
+Authorization: Bearer {{token}}
+
+### Obtener proyecto por ID
+GET {{host}}/project/{{projectId}}
+Authorization: Bearer {{token}}
+
+### Actualizar proyecto
+PUT {{host}}/project/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notes": "Notas actualizadas",
+  "active": false
+}
+
+### Archivar proyecto (soft delete)
+DELETE {{host}}/project/{{projectId}}?soft=true
+Authorization: Bearer {{token}}
+
+### Listar proyectos archivados
+GET {{host}}/project/archived
+Authorization: Bearer {{token}}
+
+### Restaurar proyecto archivado
+PATCH {{host}}/project/{{projectId}}/restore
+Authorization: Bearer {{token}}
+
+### Eliminar proyecto permanentemente
+DELETE {{host}}/project/{{projectId}}
+Authorization: Bearer {{token}}
+
+### Código de proyecto duplicado - debe dar 409
+POST {{host}}/project
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Otro proyecto",
+  "projectCode": "PRJ-001",
+  "client": "{{clientId}}"
+}
+
+### Crear albarán de horas
+# @name crearAlbaranHoras
+POST {{host}}/deliverynote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "project": "{{projectId}}",
+  "client": "{{clientId}}",
+  "format": "hours",
+  "description": "Instalación eléctrica planta baja",
+  "workDate": "2025-05-01",
+  "hours": 8,
+  "workers": [
+    { "name": "Carlos López", "hours": 5 },
+    { "name": "Ana Martínez", "hours": 3 }
+  ]
+}
+###
+@noteHorasId = {{crearAlbaranHoras.response.body.data._id}}
+
+### Crear albarán de materiales
+# @name crearAlbaranMaterial
+POST {{host}}/deliverynote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "project": "{{projectId}}",
+  "client": "{{clientId}}",
+  "format": "material",
+  "description": "Suministro de cable eléctrico",
+  "workDate": "2025-05-02",
+  "material": "Cable UTP Cat6",
+  "quantity": 100,
+  "unit": "metros"
+}
+###
+@noteMaterialId = {{crearAlbaranMaterial.response.body.data._id}}
+
+### Listar albaranes con paginación
+GET {{host}}/deliverynote?page=1&limit=10&sort=-workDate
+Authorization: Bearer {{token}}
+
+### Filtrar albaranes por formato
+GET {{host}}/deliverynote?format=hours
+Authorization: Bearer {{token}}
+
+### Filtrar albaranes por proyecto
+GET {{host}}/deliverynote?project={{projectId}}
+Authorization: Bearer {{token}}
+
+### Filtrar albaranes por rango de fechas
+GET {{host}}/deliverynote?from=2025-01-01&to=2025-12-31
+Authorization: Bearer {{token}}
+
+### Filtrar albaranes firmados
+GET {{host}}/deliverynote?signed=true
+Authorization: Bearer {{token}}
+
+### Obtener albarán por ID (con populate de user, client, project)
+GET {{host}}/deliverynote/{{noteHorasId}}
+Authorization: Bearer {{token}}
+
+### PDF sin firmar (genera al vuelo con pdfkit)
+GET {{host}}/deliverynote/pdf/{{noteMaterialId}}
+Authorization: Bearer {{token}}
+
+### Firmar albarán (Sharp + Cloudinary + genera PDF)
+PATCH {{host}}/deliverynote/{{noteHorasId}}/sign
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="signature"; filename="firma.png"
+Content-Type: image/png
+
+< ./uploads/test-logo.png
+--boundary--
+
+### PDF firmado (redirige a Cloudinary)
+GET {{host}}/deliverynote/pdf/{{noteHorasId}}
+Authorization: Bearer {{token}}
+
+### Eliminar albarán no firmado
+DELETE {{host}}/deliverynote/{{noteMaterialId}}
+Authorization: Bearer {{token}}
+
+### Eliminar albarán firmado - debe dar 400
+DELETE {{host}}/deliverynote/{{noteHorasId}}
+Authorization: Bearer {{token}}
