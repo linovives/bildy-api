@@ -161,9 +161,11 @@ export const updateCompany = async (req, res) => {
       isFreelance
     });
   } else {
-    user.role = 'guest'; 
-    await user.save();
+    user.role = 'guest';
   }
+
+  user.company = company._id;
+  await user.save();
 
   res.status(200).json({
     message: company.owner.equals(user._id) 
