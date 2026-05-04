@@ -118,10 +118,6 @@ export const getDeliveryNotePdf = async (req, res) => {
 
   if (!note) throw AppError.notFound('Albarán no encontrado');
 
-  if (note.pdfUrl) {
-    return res.redirect(note.pdfUrl);
-  }
-
   const pdfBuffer = await generateDeliveryNotePdf(note);
   res.set({
     'Content-Type': 'application/pdf',
