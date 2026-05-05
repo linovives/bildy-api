@@ -82,7 +82,7 @@ The API will be available at `http://localhost:3000`.
 
 Tests use `mongodb-memory-server` (in-memory database) and do not require a real MongoDB connection or any external services.
 
-Current coverage: **~87% statements / ~88% lines** (113+ tests).
+Current coverage: **~87% statements / ~88% lines** (129+ tests).
 
 ## Swagger Docs
 
