@@ -230,7 +230,7 @@ describe('GET /api/deliverynote/pdf/:id', () => {
     expect(res.headers['content-type']).toMatch(/application\/pdf/);
   });
 
-  test('devuelve PDF aunque el albarán ya tenga pdfUrl', async () => {
+  test('redirige a pdfUrl si el albarán ya está firmado y tiene PDF en la nube', async () => {
     const created = await request(app).post('/api/deliverynote').set('Authorization', `Bearer ${token}`)
       .send({ ...noteHours, project: projectId, client: clientId });
     await DeliveryNote.findByIdAndUpdate(created.body.data._id, {
@@ -242,8 +242,8 @@ describe('GET /api/deliverynote/pdf/:id', () => {
       .get(`/api/deliverynote/pdf/${created.body.data._id}`)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(res.status).toBe(200);
-    expect(res.headers['content-type']).toMatch(/application\/pdf/);
+    expect(res.status).toBe(302);
+    expect(res.headers['location']).toBe('https://fake.cloudinary.com/test/albaran.pdf');
   });
 
   test('devuelve 404 si no existe', async () => {
