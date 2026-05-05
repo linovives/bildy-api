@@ -150,7 +150,7 @@ Content-Type: application/json
 
 {
   "name": "García S.L.",
-  "cif": "B12345677",
+  "cif": "B12345548",
   "email": "contacto@garcia.com",
   "phone": "612345678",
   "address": {
@@ -220,7 +220,7 @@ Content-Type: application/json
 
 {
   "name": "Reforma Oficina Central",
-  "projectCode": "PRJ-001",
+  "projectCode": "PRJ-002",
   "client": "{{clientId}}",
   "email": "proyecto@garcia.com",
   "address": {
