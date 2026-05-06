@@ -23,7 +23,6 @@ export const register = async (req, res) => {
 
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
   console.log('Verification code:', verificationCode);
-  await sendVerificationEmail(email, verificationCode);
 
   const user = await User.create({
     email,
@@ -35,6 +34,10 @@ export const register = async (req, res) => {
     });
 
   eventEmitter.emit('user:registered', user);
+
+  sendVerificationEmail(email, verificationCode).catch(err =>
+    console.error('Error enviando email de verificación:', err)
+  );
 
   const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
