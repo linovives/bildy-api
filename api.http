@@ -11,7 +11,7 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "email": "user500@example.com",
+  "email": "user{{$timestamp}}@example.com",
   "password": "password123",
   "name": "Lino",
   "lastName": "Vives",
@@ -21,7 +21,7 @@ Content-Type: application/json
 @registro_token = {{registro.response.body.data.accessToken}}
 
 ### Validación con código recibido en Mailtrap
-@codigo = 891798
+@codigo = 752382
 
 PUT {{host}}/user/validation
 Authorization: Bearer {{registro_token}}
@@ -150,7 +150,7 @@ Content-Type: application/json
 
 {
   "name": "García S.L.",
-  "cif": "B12345548",
+  "cif": "B12315148",
   "email": "contacto@garcia.com",
   "phone": "612345678",
   "address": {
@@ -220,7 +220,7 @@ Content-Type: application/json
 
 {
   "name": "Reforma Oficina Central",
-  "projectCode": "PRJ-002",
+  "projectCode": "PRJ-004",
   "client": "{{clientId}}",
   "email": "proyecto@garcia.com",
   "address": {
