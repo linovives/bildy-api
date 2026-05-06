@@ -11,7 +11,7 @@ cloudinary.config({
 export const uploadSignature = async (filePath) => {
   const optimized = await sharp(filePath)
     .resize({ width: 800, withoutEnlargement: true })
-    .webp({ quality: 80 })
+    .png({ compressionLevel: 8 })
     .toBuffer();
 
   return new Promise((resolve, reject) => {
