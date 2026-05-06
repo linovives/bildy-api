@@ -498,3 +498,73 @@ describe('DELETE /api/user', () => {
     expect(res.status).toBe(401);
   });
 });
+
+//  HEALTH CHECK
+
+describe('GET /health', () => {
+  test('devuelve estado ok con información del servidor', async () => {
+    const res = await request(app).get('/health');
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(res.body.db).toBe('connected');
+    expect(res.body.uptime).toBeDefined();
+    expect(res.body.timestamp).toBeDefined();
+  });
+});
+
+//  INVITE USER
+
+describe('POST /api/user/invite', () => {
+  test('invita un usuario como admin', async () => {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const admin = await User.create({
+      ...userData,
+      email: 'admin@bildy.com',
+      password: hashedPassword,
+      status: 'verified',
+      role: 'admin'
+    });
+    const company = await Company.create({ name: 'Admin Co', cif: 'A11111111', owner: admin._id });
+    admin.company = company._id;
+    await admin.save();
+
+    const loginRes = await request(app)
+      .post('/api/user/login')
+      .send({ email: 'admin@bildy.com', password: userData.password });
+    const adminToken = loginRes.body.accessToken;
+
+    const res = await request(app)
+      .post('/api/user/invite')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ email: 'guest@bildy.com', name: 'Guest', lastName: 'User' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.email).toBe('guest@bildy.com');
+    expect(res.body.data.role).toBe('guest');
+  });
+
+  test('falla si el usuario no es admin', async () => {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    await User.create({ ...userData, email: 'nonadmin@bildy.com', password: hashedPassword, status: 'verified', role: 'guest' });
+    const loginRes = await request(app)
+      .post('/api/user/login')
+      .send({ email: 'nonadmin@bildy.com', password: userData.password });
+    const guestToken = loginRes.body.accessToken;
+
+    const res = await request(app)
+      .post('/api/user/invite')
+      .set('Authorization', `Bearer ${guestToken}`)
+      .send({ email: 'guest2@bildy.com', name: 'Guest', lastName: 'User' });
+
+    expect(res.status).toBe(403);
+  });
+
+  test('falla sin token', async () => {
+    const res = await request(app)
+      .post('/api/user/invite')
+      .send({ email: 'guest3@bildy.com', name: 'Guest', lastName: 'User' });
+
+    expect(res.status).toBe(401);
+  });
+});
